@@ -38,7 +38,7 @@ const BridgeInputPanel = ({
     <div className="bg-card border border-border rounded-lg p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-foreground font-heading">
-          Bridge Amount
+          BTC Amount To Deposit
         </h3>
         <div className="flex items-center space-x-2 text-sm text-muted-foreground">
           <Icon name="Wallet" size={16} />

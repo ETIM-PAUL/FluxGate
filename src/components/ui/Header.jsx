@@ -70,16 +70,8 @@ const Header = () => {
 
   const Logo = () => (
     <div className="flex items-center space-x-3">
-      <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-        <Icon name="Bitcoin" size={20} color="white" />
-      </div>
-      <div className="flex flex-col">
-        <span className="text-lg font-semibold text-foreground font-heading">
-          Bitcoin Yield
-        </span>
-        <span className="text-xs text-muted-foreground font-caption -mt-1">
-          Shuttle
-        </span>
+      <div className="h-32 bg-accent rounded-lg flex items-center justify-center">
+        <img src="/download.png" alt="Flux Gate" className="w-full h-full object-cover" />
       </div>
     </div>
   );
@@ -168,19 +160,7 @@ const Header = () => {
               </div>
             )}
             
-            {!isInstalled ? 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={()=>console.log("home")}
-              iconName="Wallet"
-              iconPosition="left"
-              className="transition-smooth"
-            >
-              Install Mezo Passport
-            </Button>
-            :
-            !isWalletConnected ? 
+            {!isWalletConnected ? 
             <Button
               variant="default"
               size="sm"

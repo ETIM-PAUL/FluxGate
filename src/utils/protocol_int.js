@@ -1,5 +1,5 @@
 
 
-export async function get_PreviewDeposit(amount, protocol, pool) {
+export async function get_PreviewDeposit(amountBTC, amountMUSD) {
   return 2
 }

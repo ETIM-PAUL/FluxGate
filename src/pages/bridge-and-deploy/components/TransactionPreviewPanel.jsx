@@ -6,12 +6,11 @@ import { useGlobal } from '../../../context/global';
 
 const TransactionPreviewPanel = ({ 
   amount, 
-  atomiqOutput,
-  getingAtomiqOutput,
-  selectedProtocol, 
-  selectedPool,
-  onDeploy,
-  isDeploying = false 
+  sharesOutput,
+  getingSharesOutput,
+  selectedChoice, 
+  onDeposit,
+  isDepositing = false 
 }) => {
   const [fees, setFees] = useState({
     protocolFee: '0.00005'
@@ -25,44 +24,44 @@ const TransactionPreviewPanel = ({
   const [depositOutput, setDepositOutput] = useState('0.00000000');
 
   useEffect(() => {
-    if (amount && selectedProtocol?.id) {
-      get_PreviewDeposit(amount, selectedProtocol?.id, selectedPool).then(result => {
+    if (amount && selectedChoice?.id) {
+      get_PreviewDeposit(amount, 2).then(result => {
 
-        setDepositOutput(result.formattedVal);
+        setDepositOutput(result.toString());
       }).catch(error => {
-        console.error('Error fetching Vesu deposit preview:', error);
+        console.error('Error fetching vault shares preview:', error);
         setDepositOutput('0.00000000');
       });
     }
-  }, [amount, selectedPool]);
+  }, [amount, selectedChoice]);
 
 
   const transactionSteps = [
     {
       step: 1,
-      title: 'Bridge BTC to WBTC',
-      description: 'Convert native Bitcoin to Wrapped Bitcoin via Atomiq',
+      title: 'Swap BTC to MUSD',
+      description: 'Convert Bitcoin to Mezo USD (MUSD)',
       icon: 'ArrowRightLeft',
       status: 'pending'
     },
     {
       step: 2,
-      title: 'Deploy to Starknet',
-      description: 'Transfer WBTC to Starknet network',
+      title: 'Deposit to Mezo Vault',
+      description: 'Transfer MUSD/BTC to Mezo Vault',
       icon: 'Rocket',
       status: 'pending'
     },
     {
       step: 3,
-      title: 'Protocol Allocation',
-      description: `Deposit into ${selectedProtocol?.name || 'selected protocol'}`,
+      title: 'Vault Allocation',
+      description: `Deposit into MUSD/BTC Vault`,
       icon: 'Target',
       status: 'pending'
     }
   ];
 
   const totalFees = parseFloat(fees?.bridgeFee) + parseFloat(fees?.networkFee) + parseFloat(fees?.protocolFee);
-  const canDeploy = amount && parseFloat(amount) > 0 && selectedProtocol && parseFloat(amount) > totalFees;
+  const canDeploy = amount && parseFloat(amount) > 0 && selectedChoice && parseFloat(amount) > totalFees;
 
   return (
     <div className="bg-card border border-border rounded-lg p-6 space-y-6">
@@ -101,23 +100,7 @@ const TransactionPreviewPanel = ({
         ))}
       </div>
 
-      {/* Fee Breakdown */}
-      <div className="space-y-3 pt-4 border-t border-border hidden">
-        <h4 className="text-sm font-medium text-foreground">Fee Breakdown</h4>
-        
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Protocol Fee</span>
-            <span className="text-foreground font-data">{(amount * 0.05)} BTC</span>
-          </div>
-          <div className="flex items-center justify-between text-sm pt-2 border-t border-border">
-            <span className="font-medium text-foreground">Total Fees</span>
-            <span className="font-medium text-foreground font-data">
-              {(Number(amount) + (amount * 0.05))} BTC
-            </span>
-          </div>
-        </div>
-      </div>
+
       {/* Slippage Settings */}
       <div className="space-y-3 hidden pt-4 border-t border-border">
         <div className="flex items-center justify-between">
@@ -149,7 +132,7 @@ const TransactionPreviewPanel = ({
       </div>
 
       {/* Expected Output */}
-      {(getingAtomiqOutput) &&
+      {(getingSharesOutput) &&
       <div className="bg-muted/50 rounded-lg">
           <div className="text-left mt-3">
             <span className="text-sm text-red-500">Fetching swap output...</span>
@@ -157,18 +140,18 @@ const TransactionPreviewPanel = ({
       </div>
       }
 
-      {(amount > 0 && isWalletConnected && !getingAtomiqOutput) &&
+      {(amount > 0 && isWalletConnected && !getingSharesOutput) &&
       <div className="bg-muted/50 rounded-lg">
         <div className="">
           <div>
             <span className="text-sm text-muted-foreground">You will receive after swapping</span>
             <div className="flex items-center space-x-2 mt-1">
               <span className="text-lg font-semibold text-foreground font-data">
-                {atomiqOutput} WBTC
+                {sharesOutput} MUSD
               </span>
             </div>
           </div>
-          {!selectedProtocol &&
+          {!selectedChoice &&
           <div className="text-left mt-3">
             <span className="text-sm text-red-500">Select a protocol and pool/strategy to see the protocol assets amount you will receive</span>
           </div>
@@ -177,26 +160,20 @@ const TransactionPreviewPanel = ({
       </div>
       }
       
-      {(amount > 0 && selectedPool && !getingAtomiqOutput) &&
+      {(amount > 0 && selectedChoice && !getingSharesOutput) &&
       <div className="bg-muted/50 rounded-lg">
         <div className="block items-center justify-between">
           <div>
             <span className="text-sm text-muted-foreground">You will receive after deposit, around</span>
             <div className="flex items-center space-x-2 mt-1">
               <span className="text-lg font-semibold text-foreground font-data">
-                {depositOutput} {selectedProtocol?.id === "troves-vault" ? "tWBTC-E" : selectedPool?.name === "Prime" ? "vWBTC" : "vWBTC-Re7xBTC"}
+                {depositOutput} MUSD
               </span>
               {selectedProtocol && (
                 <span className="text-sm text-accent hidden">
-                  → {selectedProtocol?.name}
+                  → {selectedChoice?.name}
                 </span>
               )}
-            </div>
-          </div>
-          <div className="text-right hidden">
-            <span className="text-sm text-muted-foreground">Expected APY</span>
-            <div className="text-lg font-semibold text-success">
-              {(Number(selectedPool?.supplyApr ?? 0)*100).toFixed(2) || '0.00'}%
             </div>
           </div>
         </div>
@@ -208,14 +185,14 @@ const TransactionPreviewPanel = ({
         variant="default"
         size="lg"
         fullWidth
-        onClick={onDeploy}
-        disabled={isDeploying || getingAtomiqOutput}
-        loading={isDeploying}
+        onClick={onDeposit}
+        disabled={isDepositing || getingSharesOutput}
+        loading={isDepositing}
         iconName="Rocket"
         iconPosition="left"
         className="mt-6 bg-gray-600 hover:bg-gray-700 cursor-pointer disabled:cursor-not-allowed"
       >
-        {isDeploying ? 'Shuttling...' : selectedProtocol?.id === "troves-vault" ? 'Shuttle Yield Farming' : 'Shuttle Lending Interest '}
+        {isDepositing ? 'Processing...' : selectedChoice?.id === 1 ? 'Swap & Deposit' : 'Deposit'}
       </Button>
       {/* {!canDeploy && amount && parseFloat(amount) > 0 && (
         <div className="flex items-center space-x-2 p-3 bg-warning/10 border border-warning/20 rounded-md">

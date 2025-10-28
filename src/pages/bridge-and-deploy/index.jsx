@@ -3,10 +3,10 @@ import { Helmet } from 'react-helmet';
 import Header from '../../components/ui/Header';
 import TransactionStatusOverlay from '../../components/ui/TransactionStatusOverlay';
 import BridgeInputPanel from './components/BridgeInputPanel';
-import ProtocolSelectionCard from './components/ProtocolSelectionCard';
 import TransactionPreviewPanel from './components/TransactionPreviewPanel';
 import Icon from '../../components/AppIcon';
 import { useGlobal } from '../../context/global';
+import ChoiceSelectionCard from './components/ChoiceSelectionCard';
 
 
 const BridgeAndDeploy = () => {
@@ -23,14 +23,14 @@ const BridgeAndDeploy = () => {
   
   
   const [amount, setAmount] = useState('');
-  const [selectedProtocol, setSelectedProtocol] = useState(null);
-  const [selectedPool, setSelectedPool] = useState(null);
-  const [isDeploying, setIsDeploying] = useState(false);
-  const [getingAtomiqOutput, setGettingAtomiqOutput] = useState(false);
+  const [amountMUSD, setAmountMUSD] = useState('');
+  const [selectedChoice, setSelectedChoice] = useState(null);
+  const [isDepositing, setIsDepositing] = useState(false);
+  const [getingSharesOutput, setGettingSharesOutput] = useState(false);
   const [completedSteps, setCompletedSteps] = useState([]);
   const [showTransactionStatus, setShowTransactionStatus] = useState(false);
   const [transactionData, setTransactionData] = useState(null);
-  const [atomiqOutput, setAtomiqOutput] = useState(null);
+  const [sharesOutput, setSharesOutput] = useState(null);
   const [walletAccount, setWalletAccount] = useState(null);
   
 
@@ -39,18 +39,18 @@ const BridgeAndDeploy = () => {
     setShowTransactionStatus(false);
     setTransactionData(null);
     setAmount('');
-    setSelectedProtocol(null);
+    setAmountMUSD('');
   };
 
-  const handlePoolSelect = (pool) => {
-    setSelectedPool(pool);
+  const handleChoiceSelect = (choice) => {
+    setSelectedChoice(choice);
   };
 
   return (
     <>
       <Helmet>
-        <title>Bridge & Deploy - Bitcoin Yield Shuttle</title>
-        <meta name="description" content="Bridge your Bitcoin to Starknet and deploy to yield protocols with one click" />
+        <title>Swap & Invest - Flux Gate</title>
+        <meta name="description" content="Swap your Bitcoin to MUSD and invest in yield-generating vaults with one click" />
       </Helmet>
       <div className="min-h-screen z-10 bg-background">
         <Header />
@@ -65,10 +65,10 @@ const BridgeAndDeploy = () => {
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-foreground font-heading">
-                    Bridge & Deploy
+                    Swap & Invest - Flux Gate
                   </h1>
                   <p className="text-muted-foreground">
-                    Convert your Bitcoin to yield-generating positions in one click
+                  Swap your Bitcoin to MUSD and invest in yield-generating vaults with one click
                   </p>
                 </div>
               </div>
@@ -94,9 +94,9 @@ const BridgeAndDeploy = () => {
                 <div className="bg-card border border-border rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <Icon name="Users" size={16} className="text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Active Pools/Strategies</span>
+                    <span className="text-sm text-muted-foreground">Active Vaults</span>
                   </div>
-                  <span className="text-2xl font-bold text-foreground">3</span>
+                  <span className="text-2xl font-bold text-foreground">1</span>
                 </div>
               </div>
             </div>
@@ -117,25 +117,34 @@ const BridgeAndDeploy = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-foreground font-heading">
-                      Select Yield Protocol
+                      Select Choice
                     </h3>
-                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                      <Icon name="Shield" size={16} />
-                      <span>All protocols audited</span>
-                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 gap-4">
-                    {protocols?.map((protocol,index) => (
-                      <ProtocolSelectionCard
+                    {[
+                      {
+                        id: "1",
+                        name: "BTC to MUSD and Deposit",
+                        description: "Swap BTC to MUSD and deposit to the vault",
+                        icon: "Rocket",
+                      },
+                      {
+                        id: "2",
+                        name: "MUSD/BTC Deposit from Wallet",
+                        description: "Deposit MUSD into vault directly from my wallet balance",
+                        icon: "Rocket",
+                      },
+                    ]?.map((choice,index) => (
+                      <ChoiceSelectionCard
                         key={index}
-                        protocol={protocol}
-                        isSelected={selectedProtocol?.id === protocol?.id}
-                        isSelectedPool={selectedPool}
-                        selectedProtocol={selectedProtocol}
-                        onSelect={setSelectedProtocol}
-                        setSelectedPool={setSelectedPool}
-                        onSelectPool={handlePoolSelect}
+                        choice={choice}
+                        isSelected={selectedChoice?.id === choice?.id}
+                        isSelectedChoice={selectedChoice?.id === choice?.id}
+                        selectedChoice={selectedChoice}
+                        onSelect={setSelectedChoice}
+                        setSelectedChoice={setSelectedChoice}
+                        onSelectChoice={handleChoiceSelect}
                       />
                     ))}
                   </div>
@@ -147,16 +156,15 @@ const BridgeAndDeploy = () => {
               <div className="space-y-6">
                 <TransactionPreviewPanel
                   amount={amount}
-                  atomiqOutput={atomiqOutput}
-                  getingAtomiqOutput={getingAtomiqOutput}
-                  selectedProtocol={selectedProtocol}
-                  selectedPool={selectedPool}
-                  onDeploy={() => console.log("done")}
-                  isDeploying={isDeploying}
+                  sharesOutput={sharesOutput}
+                  getingSharesOutput={getingSharesOutput}
+                  selectedChoice={selectedChoice}
+                  onDeposit={() => console.log("done")}
+                  isDepositing={isDepositing}
                 />
 
                 {/* Security Notice */}
-                <div className="bg-muted/50 border border-border rounded-lg p-4">
+                <div className="bg-muted/50 border border-border rounded-lg p-4 hidden">
                   <div className="flex items-start space-x-3">
                     <Icon name="Shield" size={20} className="text-accent mt-0.5" />
                     <div>
@@ -175,7 +183,7 @@ const BridgeAndDeploy = () => {
                 </div>
 
                 {/* Protocol Comparison */}
-                <div className="bg-card border border-border rounded-lg p-4">
+                <div className="bg-card border border-border rounded-lg p-4 hidden">
                   <h4 className="text-sm font-medium text-foreground mb-3">
                     Protocol Comparison
                   </h4>
