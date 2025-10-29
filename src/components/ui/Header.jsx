@@ -188,7 +188,7 @@ const Header = () => {
               Disconnect
             </Button>
             } */}
-            <ConnectButton/>
+            <ConnectButton />
           </div>
 
           {/* Mobile Menu */}

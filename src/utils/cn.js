@@ -21,3 +21,5 @@ export const formatUnits = (valueBigInt, decimals) => {
   const fracStr = frac.toString().padStart(Number(d), '0').replace(/0+$/, '');
   return fracStr.length ? `${whole.toString()}.${fracStr}` : whole.toString();
 };
+
+export const MUSD_ADDR = "0x118917a40FAF1CD7a13dB0Ef56C86De7973Ac503"

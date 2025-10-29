@@ -7,6 +7,9 @@ import TransactionPreviewPanel from './components/TransactionPreviewPanel';
 import Icon from '../../components/AppIcon';
 import { useGlobal } from '../../context/global';
 import ChoiceSelectionCard from './components/ChoiceSelectionCard';
+import { useAccount, useBalance } from 'wagmi';
+import { MUSD_ADDR } from '../../utils/cn';
+import { useBTCPrice } from '../wallet/getBTCPrice';
 
 
 const BridgeAndDeploy = () => {
@@ -16,9 +19,7 @@ const BridgeAndDeploy = () => {
     handleGetWBTCBal,
     walletAddress,
     starknetAddress,
-    btcBalance,
-    protocols,
-    btcPrice
+    protocols
   } = useGlobal();
   
   
@@ -33,7 +34,10 @@ const BridgeAndDeploy = () => {
   const [sharesOutput, setSharesOutput] = useState(null);
   const [walletAccount, setWalletAccount] = useState(null);
   
-
+  const { address, isConnected } = useAccount();
+  const btcBalance = useBalance({ address });
+  const btcPrice = useBTCPrice();
+  const musdBalance = useBalance({ address, token: MUSD_ADDR })
 
   const handleTransactionClose = () => {
     setShowTransactionStatus(false);
@@ -141,6 +145,8 @@ const BridgeAndDeploy = () => {
                         choice={choice}
                         amount={amount}
                         amountMUSD={amountMUSD}
+                        musdBalance={musdBalance?.data?.formatted}
+                        btcPrice={btcPrice}
                         onAmountChange={setAmountMUSD}
                         isSelected={selectedChoice?.id === choice?.id}
                         isSelectedChoice={selectedChoice?.id === choice?.id}

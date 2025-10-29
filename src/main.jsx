@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast'
 import { GlobalProvider } from './context/global.jsx'
 import '@rainbow-me/rainbowkit/styles.css';
 import {
+  darkTheme,
   getDefaultConfig,
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
@@ -45,7 +46,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
+        <RainbowKitProvider modalSize='compact'>
           <GlobalProvider>
             <App />
             <Toaster/>
