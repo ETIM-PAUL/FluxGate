@@ -14,7 +14,8 @@ const ChoiceSelectionCard = ({
   selectedChoice,
   onSelect,
   setSelectedChoice,
-  onSelectChoice
+  onSelectChoice,
+  swappedMUSDAmount
 }) => {
   const [expandedPools, setExpandedPools] = useState({});
   const navigate = useNavigate();
@@ -49,16 +50,6 @@ const ChoiceSelectionCard = ({
     }
   };
 
-  const togglePoolExpansion = (poolId) => {
-    setExpandedPools(prev => ({
-      ...prev,
-      [poolId]: !prev[poolId]
-    }));
-  };
-
-  const handleChoiceSelect = (choice) => {
-    onSelectChoice(choice);
-  };
 
   return (
     <div
@@ -99,23 +90,29 @@ const ChoiceSelectionCard = ({
         <div className="mb-4">
           <h5 className="text-sm font-medium text-foreground mb-3">{selectedChoice?.id === "1" ? "Enter BTC Amount to Swap to MUSD" : "Enter MUSD Amount to Deposit"}</h5>
 
-          {selectedChoice?.id === 1 ? 
+          {selectedChoice?.id === "1" ? 
             <div className="relative">
-              <Input
-                type="number"
-                placeholder="0.00000000"
-                value={amount}
-                onChange={(e) => onAmountChange(e?.target?.value)}
-                className="text-right text-xl font-data pr-16"
-                step="0.00000001"
-                min="0"
-                max={btcBalance}
-              />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-                <div className="w-6 h-6 bg-accent rounded-full flex items-center justify-center">
-                  <Icon name="Bitcoin" size={14} color="white" />
+              <div className="relative">
+                <Input
+                  type="number"
+                  placeholder="0.00001"
+                  value={amount}
+                  onChange={(e) => onAmountChange(e?.target?.value)}
+                  className="text-right text-xl font-data pr-16"
+                  step="0.00001"
+                  min="0"
+                  max={btcBalance}
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2">
+                  <div className="w-6 h-6 bg-accent rounded-full flex items-center justify-center">
+                    <Icon name="Bitcoin" size={14} color="white" />
+                  </div>
+                  <span className="text-sm font-medium text-foreground">BTC</span>
                 </div>
-                <span className="text-sm font-medium text-foreground">BTC</span>
+              </div>
+
+              <div className="mt-3">
+              <span className="text-sm text-muted-foreground">You will receive {swappedMUSDAmount} MUSD after swapping</span>
               </div>
             </div>
             :

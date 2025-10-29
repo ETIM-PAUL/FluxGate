@@ -42,7 +42,7 @@ const BridgeInputPanel = ({
         </h3>
         <div className="flex items-center space-x-2 text-sm text-muted-foreground">
           <Icon name="Wallet" size={16} />
-          <span>Balance: {walletBalance?.data?.formatted} BTC</span>
+          <span>Balance: {walletBalance} BTC</span>
         </div>
       </div>
       <div className="space-y-3">
@@ -55,7 +55,7 @@ const BridgeInputPanel = ({
             className="text-right text-xl font-data pr-16"
             step="0.00001"
             min="0"
-            max={walletBalance?.data?.formatted}
+            max={walletBalance}
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2">
             <div className="w-6 h-6 bg-accent rounded-full flex items-center justify-center">

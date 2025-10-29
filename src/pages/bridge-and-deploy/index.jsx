@@ -8,8 +8,10 @@ import Icon from '../../components/AppIcon';
 import { useGlobal } from '../../context/global';
 import ChoiceSelectionCard from './components/ChoiceSelectionCard';
 import { useAccount, useBalance } from 'wagmi';
-import { MUSD_ADDR } from '../../utils/cn';
+import { BTC_ADDR, FACTORY_ADDR, MUSD_ADDR, ROUTER_ADDR } from '../../utils/cn';
 import { useBTCPrice } from '../wallet/getBTCPrice';
+import { getAmountsOut } from '../../calls/getAmountsOutput';
+import { formatUnits, parseUnits } from 'viem';
 
 
 const BridgeAndDeploy = () => {
@@ -24,6 +26,7 @@ const BridgeAndDeploy = () => {
   
   
   const [amount, setAmount] = useState('');
+  const [amountBTC, setAmountBTC] = useState('');
   const [amountMUSD, setAmountMUSD] = useState('');
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [isDepositing, setIsDepositing] = useState(false);
@@ -32,7 +35,7 @@ const BridgeAndDeploy = () => {
   const [showTransactionStatus, setShowTransactionStatus] = useState(false);
   const [transactionData, setTransactionData] = useState(null);
   const [sharesOutput, setSharesOutput] = useState(null);
-  const [walletAccount, setWalletAccount] = useState(null);
+  const [swappedMUSDAmount, setSwappedMUSDAmount] = useState(null);
   
   const { address, isConnected } = useAccount();
   const btcBalance = useBalance({ address });
@@ -48,6 +51,30 @@ const BridgeAndDeploy = () => {
 
   const handleChoiceSelect = (choice) => {
     setSelectedChoice(choice);
+  };
+
+  const handleSwapBTCToMUSD = async (amount) => {
+    setAmountBTC(amount);
+    if (Number(amount) <= 0) {
+      setSwappedMUSDAmount(null);
+      return;
+    }
+    const out = await getAmountsOut({
+      router: ROUTER_ADDR,
+      amountIn: parseUnits(amount.toString(), 18), // 1 token with 18 decimals
+      routes: [
+        {
+          from: BTC_ADDR,
+          to: MUSD_ADDR,
+          stable: false,
+          factory: FACTORY_ADDR,
+        },
+      ],
+      rpcUrl: "https://rpc.test.mezo.org", // e.g., Avalanche, Mezo, etc.
+    });
+
+    console.log("Amounts:", out.map(a => a.toString()));
+    setSwappedMUSDAmount(formatUnits(out[1], 18));
   };
 
   return (
@@ -113,8 +140,8 @@ const BridgeAndDeploy = () => {
                   amount={amount}
                   btcPrice={btcPrice}
                   onAmountChange={setAmount}
-                  walletBalance={btcBalance}
-                  isWalletConnected={true}
+                  walletBalance={btcBalance?.data?.formatted}
+                  isWalletConnected={isConnected}
                 />
 
                 {/* Protocol Selection */}
@@ -143,11 +170,12 @@ const BridgeAndDeploy = () => {
                       <ChoiceSelectionCard
                         key={index}
                         choice={choice}
-                        amount={amount}
+                        amount={amountBTC}
                         amountMUSD={amountMUSD}
                         musdBalance={musdBalance?.data?.formatted}
                         btcPrice={btcPrice}
-                        onAmountChange={setAmountMUSD}
+                        swappedMUSDAmount={swappedMUSDAmount}
+                        onAmountChange={handleSwapBTCToMUSD}
                         isSelected={selectedChoice?.id === choice?.id}
                         isSelectedChoice={selectedChoice?.id === choice?.id}
                         selectedChoice={selectedChoice}

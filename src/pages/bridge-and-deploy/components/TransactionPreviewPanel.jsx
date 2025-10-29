@@ -191,7 +191,7 @@ const TransactionPreviewPanel = ({
               <span className="text-lg font-semibold text-foreground font-data">
                 {depositOutput} MUSD
               </span>
-              {selectedProtocol && (
+              {selectedChoice && (
                 <span className="text-sm text-accent hidden">
                   → {selectedChoice?.name}
                 </span>
