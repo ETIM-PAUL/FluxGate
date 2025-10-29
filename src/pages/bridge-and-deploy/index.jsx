@@ -117,7 +117,7 @@ const BridgeAndDeploy = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-foreground font-heading">
-                      Select Choice
+                      Select Choice for MUSD Asset
                     </h3>
                   </div>
 
@@ -139,6 +139,9 @@ const BridgeAndDeploy = () => {
                       <ChoiceSelectionCard
                         key={index}
                         choice={choice}
+                        amount={amount}
+                        amountMUSD={amountMUSD}
+                        onAmountChange={setAmountMUSD}
                         isSelected={selectedChoice?.id === choice?.id}
                         isSelectedChoice={selectedChoice?.id === choice?.id}
                         selectedChoice={selectedChoice}

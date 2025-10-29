@@ -16,6 +16,20 @@ export const GlobalProvider = ({ children }) => {
     const [btcPrice, setBtcPrice] = useState(null);
     const [protocols, setProtocols] = useState([]);
 
+    const handleConnect = () => {
+      setIsConnecting(true);
+      setTimeout(() => {
+        setIsConnecting(false);
+      }, 1000);
+    };
+
+    const handleDisconnect = () => {
+      setIsWalletConnected(false);
+      setWalletAddress(null);
+      setBtcBalance(null);
+      setWBTCBalance(null);
+      setProtocols([]);
+    };
 
   const value = {
     isWalletConnected,
@@ -31,7 +45,9 @@ export const GlobalProvider = ({ children }) => {
     setWalletAddress,
     isInstalled,
     protocols,
-    setIsInstalled
+    setIsInstalled,
+    handleConnect,
+    handleDisconnect,
   };
 
   return (

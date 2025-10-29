@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 // import { getBtcBalance } from '../../api';
 import toast from 'react-hot-toast';
 import { useGlobal } from '../../context/global';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const Header = () => {
   const location = useLocation();
@@ -24,6 +25,8 @@ const Header = () => {
     isInstalled, 
     isConnecting, 
     setIsConnecting,
+    handleConnect,
+    handleDisconnect,
   } = useGlobal();
   const navigate = useNavigate();
 
@@ -40,12 +43,6 @@ const Header = () => {
       icon: 'Rocket',
       tooltip: 'Bridge Bitcoin and deploy to yield protocols'
     },
-    // {
-    //   label: 'History',
-    //   path: '/transaction-history',
-    //   icon: 'History',
-    //   tooltip: 'View transaction history and portfolio performance'
-    // },
     {
       label: 'Wallet',
       path: '/wallet',
@@ -67,6 +64,8 @@ const Header = () => {
         return 'text-muted-foreground';
     }
   };
+
+
 
   const Logo = () => (
     <div className="flex items-center space-x-3">
@@ -160,7 +159,7 @@ const Header = () => {
               </div>
             )}
             
-            {!isWalletConnected ? 
+            {/* {!isWalletConnected ? 
             <Button
               variant="default"
               size="sm"
@@ -188,7 +187,8 @@ const Header = () => {
             >
               Disconnect
             </Button>
-            }
+            } */}
+            <ConnectButton/>
           </div>
 
           {/* Mobile Menu */}

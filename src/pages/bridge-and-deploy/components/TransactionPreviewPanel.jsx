@@ -33,21 +33,21 @@ const TransactionPreviewPanel = ({
         setDepositOutput('0.00000000');
       });
     }
-  }, [amount, selectedChoice]);
+  }, [amount, selectedChoice?.id]);
 
 
-  const transactionSteps = [
+  const transactionSteps = selectedChoice?.id === "1" ? [
     {
       step: 1,
       title: 'Swap BTC to MUSD',
-      description: 'Convert Bitcoin to Mezo USD (MUSD)',
+      description: 'Swap Bitcoin to Mezo USD (MUSD)',
       icon: 'ArrowRightLeft',
       status: 'pending'
     },
     {
       step: 2,
-      title: 'Deposit to Mezo Vault',
-      description: 'Transfer MUSD/BTC to Mezo Vault',
+      title: 'Approve Assets',
+      description: 'Approve MUSD/BTC Assets to be deposited',
       icon: 'Rocket',
       status: 'pending'
     },
@@ -55,6 +55,28 @@ const TransactionPreviewPanel = ({
       step: 3,
       title: 'Vault Allocation',
       description: `Deposit into MUSD/BTC Vault`,
+      icon: 'Target',
+      status: 'pending'
+    }
+  ] : [
+    {
+      step: 1,
+      title: 'Approve Assets',
+      description: 'Approve MUSD/BTC Assets to be deposited',
+      icon: 'ArrowRightLeft',
+      status: 'pending'
+    },
+    {
+      step: 2,
+      title: 'Deposit to Mezo Vault',
+      description: 'Deposit MUSD/BTC Assets to the vault',
+      icon: 'Rocket',
+      status: 'pending'
+    },
+    {
+      step: 3,
+      title: 'Pool Shares',
+      description: `Receive Liquidity Pool Shares`,
       icon: 'Target',
       status: 'pending'
     }

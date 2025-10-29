@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import Icon from '../../../components/AppIcon';
 import { useNavigate } from 'react-router-dom';
+import Input from '../../../components/ui/Input';
+import { useGlobal } from '../../../context/global';
 
 const ChoiceSelectionCard = ({ 
   choice, 
+  amount,
+  amountMUSD,
+  onAmountChange,
   isSelected, 
   isSelectedChoice,
   selectedChoice,
@@ -13,6 +18,11 @@ const ChoiceSelectionCard = ({
 }) => {
   const [expandedPools, setExpandedPools] = useState({});
   const navigate = useNavigate();
+
+  const {
+    btcBalance,
+    mUSDBalance,
+  } = useGlobal();
 
 
   const getRiskColor = (risk) => {
@@ -57,7 +67,7 @@ const ChoiceSelectionCard = ({
           ? 'border-green bg-accent/5 shadow-md'
           : 'border-border bg-card hover:border-accent/50 hover:bg-accent/2'
       }`}
-      onClick={() => {onSelect(choice);setSelectedChoice(null)}}
+      onClick={() => {onSelect(choice);}}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center space-x-3">
@@ -87,7 +97,7 @@ const ChoiceSelectionCard = ({
       {/* Sub-Protocol Pools Section */}
       {(isSelected) && (
         <div className="mb-4">
-          <h5 className="text-sm font-medium text-foreground mb-3">Available Choices</h5>
+          <h5 className="text-sm font-medium text-foreground mb-3">{selectedChoice?.id === "1" ? "Enter BTC Amount to Swap to MUSD" : "Enter MUSD Amount to Deposit"}</h5>
 
           {selectedChoice?.id === 1 ? 
             <div className="relative">
@@ -99,7 +109,7 @@ const ChoiceSelectionCard = ({
                 className="text-right text-xl font-data pr-16"
                 step="0.00000001"
                 min="0"
-                max={walletBalance}
+                max={btcBalance}
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2">
                 <div className="w-6 h-6 bg-accent rounded-full flex items-center justify-center">
@@ -113,12 +123,12 @@ const ChoiceSelectionCard = ({
                   <Input
                 type="number"
                 placeholder="0.00000000"
-                value={amount}
+                value={amountMUSD}
                 onChange={(e) => onAmountChange(e?.target?.value)}
                 className="text-right text-xl font-data pr-16"
                 step="0.00000001"
                 min="0"
-                max={walletBalance}
+                max={mUSDBalance}
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2">
                 <div className="w-6 h-6 bg-accent rounded-full flex items-center justify-center">
