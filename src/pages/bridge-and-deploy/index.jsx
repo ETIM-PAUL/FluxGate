@@ -12,6 +12,8 @@ import { BTC_ADDR, FACTORY_ADDR, MUSD_ADDR, ROUTER_ADDR } from '../../utils/cn';
 import { useBTCPrice } from '../wallet/getBTCPrice';
 import { getAmountsOut } from '../../calls/getAmountsOutput';
 import { formatUnits, parseUnits } from 'viem';
+import { swapBTCToMUSD } from '../../calls/swapBTCToMUSD';
+import toast from 'react-hot-toast';
 
 
 const BridgeAndDeploy = () => {
@@ -31,6 +33,7 @@ const BridgeAndDeploy = () => {
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [isDepositing, setIsDepositing] = useState(false);
   const [getingSharesOutput, setGettingSharesOutput] = useState(false);
+  const [getingSwapOutput, setGettingSwapOutput] = useState(false);
   const [completedSteps, setCompletedSteps] = useState([]);
   const [showTransactionStatus, setShowTransactionStatus] = useState(false);
   const [transactionData, setTransactionData] = useState(null);
@@ -59,22 +62,47 @@ const BridgeAndDeploy = () => {
       setSwappedMUSDAmount(null);
       return;
     }
-    const out = await getAmountsOut({
-      router: ROUTER_ADDR,
-      amountIn: parseUnits(amount.toString(), 18), // 1 token with 18 decimals
-      routes: [
-        {
-          from: BTC_ADDR,
-          to: MUSD_ADDR,
-          stable: false,
-          factory: FACTORY_ADDR,
-        },
-      ],
-      rpcUrl: "https://rpc.test.mezo.org", // e.g., Avalanche, Mezo, etc.
-    });
+    setGettingSwapOutput(true);
+    try {
+      const out = await getAmountsOut({
+        router: ROUTER_ADDR,
+        amountIn: parseUnits(amount.toString(), 18), // 1 token with 18 decimals
+        routes: [
+          {
+            from: BTC_ADDR,
+            to: MUSD_ADDR,
+            stable: false,
+            factory: FACTORY_ADDR,
+          },
+        ],
+        rpcUrl: "https://rpc.test.mezo.org", // e.g., Avalanche, Mezo, etc.
+      });
 
-    console.log("Amounts:", out.map(a => a.toString()));
-    setSwappedMUSDAmount(formatUnits(out[1], 18));
+      setSwappedMUSDAmount(Number(formatUnits(out[1], 18)).toFixed(3));
+      setGettingSwapOutput(false);
+    } catch (error) {
+      setGettingSwapOutput(false);
+      console.error("Error getting amount out for BTC to MUSD:", error);
+    }
+  };
+
+  const handleAddLiquidity = async () => {
+    if ((Number(amount) <= 0 || Number(swappedMUSDAmount) <= 0) && selectedChoice?.id === "1") {
+      toast.error("Please enter a valid amount for both BTC and MUSD");
+      return;
+    }
+    if ((Number(amount) <= 0 || Number(amountMUSD) <= 0) && selectedChoice?.id === "2") {
+      toast.error("Please enter a valid amount for both BTC and MUSD");
+      return;
+    }
+    setShowTransactionStatus(true);
+    try {
+      const tx = await swapBTCToMUSD(parseUnits(amountBTC.toString(), 18), address);
+      setShowTransactionStatus(false);
+    } catch (error) {
+      setShowTransactionStatus(false);
+      console.error("Error depositing Assets:", error);
+    }
   };
 
   return (
@@ -172,16 +200,15 @@ const BridgeAndDeploy = () => {
                         choice={choice}
                         amount={amountBTC}
                         amountMUSD={amountMUSD}
-                        musdBalance={musdBalance?.data?.formatted}
-                        btcPrice={btcPrice}
-                        swappedMUSDAmount={swappedMUSDAmount}
                         onAmountChange={handleSwapBTCToMUSD}
+                        onMUSDAmountChange={setAmountMUSD}
                         isSelected={selectedChoice?.id === choice?.id}
-                        isSelectedChoice={selectedChoice?.id === choice?.id}
                         selectedChoice={selectedChoice}
                         onSelect={setSelectedChoice}
-                        setSelectedChoice={setSelectedChoice}
-                        onSelectChoice={handleChoiceSelect}
+                        swappedMUSDAmount={swappedMUSDAmount}
+                        musdBalance={musdBalance}
+                        btcBalance={btcBalance?.data?.formatted}
+                        getingSwapOutput={getingSwapOutput}
                       />
                     ))}
                   </div>
@@ -196,7 +223,7 @@ const BridgeAndDeploy = () => {
                   sharesOutput={sharesOutput}
                   getingSharesOutput={getingSharesOutput}
                   selectedChoice={selectedChoice}
-                  onDeposit={() => console.log("done")}
+                  onDeposit={() => handleAddLiquidity()}
                   isDepositing={isDepositing}
                 />
 

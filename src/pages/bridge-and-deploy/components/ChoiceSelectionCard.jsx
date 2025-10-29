@@ -9,21 +9,17 @@ const ChoiceSelectionCard = ({
   amount,
   amountMUSD,
   onAmountChange,
+  onMUSDAmountChange,
   isSelected, 
-  isSelectedChoice,
   selectedChoice,
   onSelect,
-  setSelectedChoice,
-  onSelectChoice,
-  swappedMUSDAmount
+  swappedMUSDAmount,
+  musdBalance,
+  btcBalance,
+  getingSwapOutput
 }) => {
   const [expandedPools, setExpandedPools] = useState({});
   const navigate = useNavigate();
-
-  const {
-    btcBalance,
-    mUSDBalance,
-  } = useGlobal();
 
 
   const getRiskColor = (risk) => {
@@ -111,27 +107,34 @@ const ChoiceSelectionCard = ({
                 </div>
               </div>
 
+              {getingSwapOutput &&
               <div className="mt-3">
-              <span className="text-sm text-muted-foreground">You will receive {swappedMUSDAmount} MUSD after swapping</span>
+                <span className="text-sm text-muted-foreground">Fetching swap output...</span>
               </div>
+              }
+              {!getingSwapOutput && swappedMUSDAmount &&
+              <div className="mt-3">
+                <span className="text-sm text-muted-foreground">You will receive {swappedMUSDAmount} MUSD after swapping</span>
+              </div>
+              }
             </div>
             :
-            <div>
-                  <Input
+            <div className="relative">
+                <Input
                 type="number"
-                placeholder="0.00000000"
+                placeholder="100"
                 value={amountMUSD}
-                onChange={(e) => onAmountChange(e?.target?.value)}
+                onChange={(e) => onMUSDAmountChange(e?.target?.value)}
                 className="text-right text-xl font-data pr-16"
-                step="0.00000001"
+                step="10"
                 min="0"
-                max={mUSDBalance}
+                max={musdBalance}
               />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2">
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
                 <div className="w-6 h-6 bg-accent rounded-full flex items-center justify-center">
-                  <Icon name="Bitcoin" size={14} color="white" />
+                  <Icon name="DollarSign" size={14} color="white" />
                 </div>
-                <span className="text-sm font-medium text-foreground">BTC</span>
+                <span className="text-sm font-medium text-foreground">MUSD</span>
               </div>
             </div>
           }
