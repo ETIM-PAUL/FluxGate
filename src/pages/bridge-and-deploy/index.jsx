@@ -14,6 +14,7 @@ import { getAmountsOut } from '../../calls/getAmountsOutput';
 import { formatUnits, parseUnits } from 'viem';
 import { swapBTCToMUSD } from '../../calls/swapBTCToMUSD';
 import toast from 'react-hot-toast';
+import { quoteAddLiquidity } from '../../calls/quoteAddLiquidity';
 
 
 const BridgeAndDeploy = () => {
@@ -37,7 +38,7 @@ const BridgeAndDeploy = () => {
   const [completedSteps, setCompletedSteps] = useState([]);
   const [showTransactionStatus, setShowTransactionStatus] = useState(false);
   const [transactionData, setTransactionData] = useState(null);
-  const [sharesOutput, setSharesOutput] = useState(null);
+  const [sharesOutput, setSharesOutput] = useState([]);
   const [swappedMUSDAmount, setSwappedMUSDAmount] = useState(null);
   
   const { address, isConnected } = useAccount();
@@ -52,13 +53,16 @@ const BridgeAndDeploy = () => {
     setAmountMUSD('');
   };
 
-  const handleChoiceSelect = (choice) => {
-    setSelectedChoice(choice);
+  const handleAmountSet = (amount) => {
+    setAmount(amount);
+    console.log("amountBTC", amount)
+
+    handleQuoteAddLiquidity(amountMUSD, amount);
   };
 
-  const handleSwapBTCToMUSD = async (amount) => {
-    setAmountBTC(amount);
-    if (Number(amount) <= 0) {
+  const handleGetOutputForSwapping = async (amountIn) => {
+    setAmountBTC(amountIn);
+    if (Number(amountIn) <= 0) {
       setSwappedMUSDAmount(null);
       return;
     }
@@ -66,7 +70,7 @@ const BridgeAndDeploy = () => {
     try {
       const out = await getAmountsOut({
         router: ROUTER_ADDR,
-        amountIn: parseUnits(amount.toString(), 18), // 1 token with 18 decimals
+        amountIn: parseUnits(amountIn.toString(), 18), // 1 token with 18 decimals
         routes: [
           {
             from: BTC_ADDR,
@@ -77,11 +81,44 @@ const BridgeAndDeploy = () => {
         ],
         rpcUrl: "https://rpc.test.mezo.org", // e.g., Avalanche, Mezo, etc.
       });
-
+      
+      
       setSwappedMUSDAmount(Number(formatUnits(out[1], 18)).toFixed(3));
       setGettingSwapOutput(false);
+      handleQuoteAddLiquidity(Number(formatUnits(out[1], 18)), amount);
     } catch (error) {
       setGettingSwapOutput(false);
+      console.error("Error getting amount out for BTC to MUSD:", error);
+    }
+  };
+
+  const handleQuoteAddLiquidity = async (amountMusd, amountBTC) => {
+    setAmountMUSD(amountMusd);
+    let amount_musd;
+    if (selectedChoice?.id === "1") {
+      amount_musd = swappedMUSDAmount
+    }
+    if (selectedChoice?.id === "2") {
+      amount_musd = amountMusd
+    }
+    console.log("choice", selectedChoice)
+    console.log("out",(amountBTC ?? amount) )
+    console.log("out2", amountMusd)
+
+    if (Number(amountBTC ?? amount) <= 0 || Number(amount_musd) <= 0) {
+      return;
+    }
+    setGettingSharesOutput(true);
+    try {
+      const out = await quoteAddLiquidity({
+        amountMUSD: parseUnits(amount_musd.toString(), 18),
+        amountBTC: parseUnits((amountBTC ?? amount).toString(), 18),
+      });
+      
+      setSharesOutput(out);
+      setGettingSharesOutput(false);
+    } catch (error) {
+      setGettingSharesOutput(false);
       console.error("Error getting amount out for BTC to MUSD:", error);
     }
   };
@@ -97,9 +134,16 @@ const BridgeAndDeploy = () => {
     }
     setShowTransactionStatus(true);
     try {
-      const tx = await swapBTCToMUSD(parseUnits(amountBTC.toString(), 18), address);
-      setShowTransactionStatus(false);
-    } catch (error) {
+      if (selectedChoice?.id === "1") {
+        const tx = await swapBTCToMUSD(parseUnits(amountBTC.toString(), 18), address);
+        const tx2 = await provideLiquidity(parseUnits(amount.toString(), 18), parseUnits(swappedMUSDAmount.toString(), 18), address);
+        setShowTransactionStatus(false);
+      } else {
+        const tx = await swapBTCToMUSD(parseUnits(amountMUSD.toString(), 18), address);
+        const tx2 = await provideLiquidity(parseUnits(amount.toString(), 18), parseUnits(amountMUSD.toString(), 18), address);
+        setShowTransactionStatus(false);
+      }
+    } catch (error) { 
       setShowTransactionStatus(false);
       console.error("Error depositing Assets:", error);
     }
@@ -167,7 +211,7 @@ const BridgeAndDeploy = () => {
                 <BridgeInputPanel
                   amount={amount}
                   btcPrice={btcPrice}
-                  onAmountChange={setAmount}
+                  onAmountChange={handleAmountSet}
                   walletBalance={btcBalance?.data?.formatted}
                   isWalletConnected={isConnected}
                 />
@@ -200,8 +244,8 @@ const BridgeAndDeploy = () => {
                         choice={choice}
                         amount={amountBTC}
                         amountMUSD={amountMUSD}
-                        onAmountChange={handleSwapBTCToMUSD}
-                        onMUSDAmountChange={setAmountMUSD}
+                        onAmountChange={handleGetOutputForSwapping}
+                        onMUSDAmountChange={handleQuoteAddLiquidity}
                         isSelected={selectedChoice?.id === choice?.id}
                         selectedChoice={selectedChoice}
                         onSelect={setSelectedChoice}

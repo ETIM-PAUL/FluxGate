@@ -3,6 +3,7 @@ import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 import { get_PreviewDeposit } from '../../../utils/protocol_int';
 import { useGlobal } from '../../../context/global';
+import { formatUnits } from 'viem';
 
 const TransactionPreviewPanel = ({ 
   amount, 
@@ -162,28 +163,41 @@ const TransactionPreviewPanel = ({
       </div>
       }
 
-      {(amount > 0 && isWalletConnected && !getingSharesOutput) &&
+      {(sharesOutput?.amountA && !getingSharesOutput) &&
       <div className="bg-muted/50 rounded-lg">
         <div className="">
           <div>
-            <span className="text-sm text-muted-foreground">You will receive after swapping</span>
-            <div className="flex items-center space-x-2 mt-1">
+            <span className="text-sm text-muted-foreground">You will be depositing</span>
+            <div className="flex items-center space-x-2">
               <span className="text-lg font-semibold text-foreground font-data">
-                {sharesOutput} MUSD
+                {formatUnits(sharesOutput?.amountA, 18)} MUSD
               </span>
             </div>
           </div>
-          {!selectedChoice &&
-          <div className="text-left mt-3">
-            <span className="text-sm text-red-500">Select a protocol and pool/strategy to see the protocol assets amount you will receive</span>
+
+          <div className='mt-2'>
+            <span className="text-sm text-muted-foreground">You will be depositing</span>
+            <div className="flex items-center space-x-2">
+              <span className="text-lg font-semibold text-foreground font-data">
+                {formatUnits(sharesOutput?.amountB, 18)} BTC
+              </span>
+            </div>
           </div>
-          }
+
+          <div className='mt-2'>
+            <span className="text-sm text-red-500">You will receive after depositing assets</span>
+            <div className="flex items-center space-x-2">
+              <span className="text-lg font-semibold text-red-500 font-data">
+                {Number(formatUnits(sharesOutput?.liquidity, 18)).toFixed(3)} vAMM-MUSD/BTC
+              </span>
+            </div>
+          </div>
         </div>
       </div>
       }
       
       {(amount > 0 && selectedChoice && !getingSharesOutput) &&
-      <div className="bg-muted/50 rounded-lg">
+      <div className="hidden bg-muted/50 rounded-lg">
         <div className="block items-center justify-between">
           <div>
             <span className="text-sm text-muted-foreground">You will receive after deposit, around</span>
