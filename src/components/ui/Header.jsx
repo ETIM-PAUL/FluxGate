@@ -17,16 +17,8 @@ const Header = () => {
   });
   const {
     isWalletConnected, 
-    setIsWalletConnected, 
     btcBalance, 
-    setBtcBalance, 
     walletAddress, 
-    setWalletAddress, 
-    isInstalled, 
-    isConnecting, 
-    setIsConnecting,
-    handleConnect,
-    handleDisconnect,
   } = useGlobal();
   const navigate = useNavigate();
 
@@ -38,10 +30,16 @@ const Header = () => {
 
   const navigationItems = [
     {
-      label: 'Deploy',
-      path: '/bridge-and-deploy',
+      label: 'Swap and Liquidity',
+      path: '/swap-and-deploy',
       icon: 'Rocket',
-      tooltip: 'Bridge Bitcoin and deploy to yield protocols'
+      tooltip: 'Swap Bitcoin and deploy to yield protocols'
+    },
+    {
+      label: 'Lending Interest',
+      path: '/collateral-and-interest',
+      icon: 'Currency',
+      tooltip: 'Supply MUSD/BTC as collateral to earn lending interest'
     },
     {
       label: 'Wallet',
@@ -119,12 +117,7 @@ const Header = () => {
             <div className="w-px h-3 bg-border" />
             <div className="flex items-center space-x-1">
               <div className={`w-2 h-2 rounded-full ${getNetworkStatusColor(networkStatus?.lightning)} animate-pulse-soft`} />
-              <span className="text-xs text-muted-foreground">LN</span>
-            </div>
-            <div className="w-px h-3 bg-border" />
-            <div className="flex items-center space-x-1">
-              <div className={`w-2 h-2 rounded-full ${getNetworkStatusColor(networkStatus?.starknet)} animate-pulse-soft`} />
-              <span className="text-xs text-muted-foreground">STRK</span>
+              <span className="text-xs text-muted-foreground">MUSD</span>
             </div>
           </div>
 

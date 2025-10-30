@@ -14,7 +14,8 @@ const Routes = () => {
       <RouterRoutes>
         {/* Define your route here */}
         <Route path="/" element={<BridgeAndDeploy />} />
-        <Route path="/bridge-and-deploy" element={<BridgeAndDeploy />} />
+        <Route path="/swap-and-deploy" element={<BridgeAndDeploy />} />
+        <Route path="/collateral-and-interest" element={<BridgeAndDeploy />} />
         <Route path="/wallet" element={<WalletSection />} />
         <Route path="*" element={<NotFound />} />
       </RouterRoutes>
