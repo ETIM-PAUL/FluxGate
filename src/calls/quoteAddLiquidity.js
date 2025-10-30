@@ -21,12 +21,6 @@ export async function quoteAddLiquidity({
       amountBTC
     )
 
-    console.log('Estimated amounts:', {
-      amountA: amountA.toString(),
-      amountB: amountB.toString(),
-      liquidity: liquidity.toString(),
-    })
-
     return { amountA, amountB, liquidity }
   } catch (err) {
     console.error('quoteAddLiquidity failed:', err)

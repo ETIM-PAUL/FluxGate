@@ -47,35 +47,28 @@ const TransactionPreviewPanel = ({
     },
     {
       step: 2,
-      title: 'Approve Assets',
-      description: 'Approve MUSD/BTC Assets to be deposited',
+      title: 'Approve and Deposit Assets',
+      description: 'Approve MUSD/BTC Assets to be deposited AND Deposit into MUSD/BTC Pool',
       icon: 'Rocket',
       status: 'pending'
     },
     {
       step: 3,
-      title: 'Vault Allocation',
-      description: `Deposit into MUSD/BTC Vault`,
+      title: 'Pool Shares',
+      description: `Receive Liquidity Pool Shares`,
       icon: 'Target',
       status: 'pending'
     }
   ] : [
     {
       step: 1,
-      title: 'Approve Assets',
-      description: 'Approve MUSD/BTC Assets to be deposited',
-      icon: 'ArrowRightLeft',
-      status: 'pending'
-    },
-    {
-      step: 2,
-      title: 'Deposit to Mezo Vault',
-      description: 'Deposit MUSD/BTC Assets to the vault',
+      title: 'Approve and Deposit Assets',
+      description: 'Approve MUSD/BTC Assets AND Deposit into MUSD/BTC Pool',
       icon: 'Rocket',
       status: 'pending'
     },
     {
-      step: 3,
+      step: 2,
       title: 'Pool Shares',
       description: `Receive Liquidity Pool Shares`,
       icon: 'Target',
@@ -170,16 +163,9 @@ const TransactionPreviewPanel = ({
             <span className="text-sm text-muted-foreground">You will be depositing</span>
             <div className="flex items-center space-x-2">
               <span className="text-lg font-semibold text-foreground font-data">
-                {formatUnits(sharesOutput?.amountA, 18)} MUSD
-              </span>
-            </div>
-          </div>
-
-          <div className='mt-2'>
-            <span className="text-sm text-muted-foreground">You will be depositing</span>
-            <div className="flex items-center space-x-2">
-              <span className="text-lg font-semibold text-foreground font-data">
+                {Number(formatUnits(sharesOutput?.amountA, 18)).toFixed(2)} MUSD/
                 {formatUnits(sharesOutput?.amountB, 18)} BTC
+
               </span>
             </div>
           </div>
@@ -195,26 +181,7 @@ const TransactionPreviewPanel = ({
         </div>
       </div>
       }
-      
-      {(amount > 0 && selectedChoice && !getingSharesOutput) &&
-      <div className="hidden bg-muted/50 rounded-lg">
-        <div className="block items-center justify-between">
-          <div>
-            <span className="text-sm text-muted-foreground">You will receive after deposit, around</span>
-            <div className="flex items-center space-x-2 mt-1">
-              <span className="text-lg font-semibold text-foreground font-data">
-                {depositOutput} MUSD
-              </span>
-              {selectedChoice && (
-                <span className="text-sm text-accent hidden">
-                  → {selectedChoice?.name}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-      }
+
 
       {/* Deploy Button */}
       <Button

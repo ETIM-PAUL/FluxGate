@@ -5,40 +5,58 @@ import Button from './Button';
 const TransactionStatusOverlay = ({ 
   isVisible = false, 
   onClose = () => {}, 
-  transactionData = null,
-  completedSteps = []
+  status,
+  txHash,
+  selectedChoice
 }) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isCompleted, setIsCompleted] = useState(false);
 
-  const transactionSteps = [
+  const transactionSteps = 
+  selectedChoice?.id === "1" ?
+  [
     {
-      id: 'bridge_confirmation',
-      title: 'Bridge Confirmation',
-      description: 'Confirming Bitcoin transaction on network',
+      id: 'swapped',
+      title: 'Swap Confirmation',
+      description: 'Confirming Bitcoin swap on Mezo network',
       icon: 'ArrowRightLeft',
-      estimatedTime: '20-50 minutes',
+      estimatedTime: '2 minutes',
     },
     {
-      id: 'protocol_deployment',
-      title: 'Protocol Deployment',
-      description: 'Deploying to yield protocol on Starknet',
+      id: 'depositedToPool',
+      title: 'Pool Liquidity Deposit',
+      description: 'Approving Assets and Providing Liquidity to MUSD/BTC Pool',
       icon: 'Rocket',
-      estimatedTime: '2-5 minutes',
+      estimatedTime: '2 minutes',
     },
     {
-      id: 'yield_position',
-      title: 'Yield Position Active',
-      description: 'Your Bitcoin is now earning yield',
+      id: 'completed',
+      title: 'Liquidity Shares Active',
+      description: 'Your Assets is now earning shares',
       icon: 'TrendingUp',
-      estimatedTime: 'Complete',
+      estimatedTime: '1 minutes',
     }
-  ];
+  ] :
+  [
+    {
+      id: 'depositedToPool',
+      title: 'Pool Liquidity Deposit',
+      description: 'Approving Assets and Providing Liquidity to MUSD/BTC Pool',
+      icon: 'Rocket',
+      estimatedTime: '2 minutes',
+    },
+    {
+      id: 'completed',
+      title: 'Liquidity Shares Active',
+      description: 'Your Assets is now earning shares',
+      icon: 'TrendingUp',
+      estimatedTime: '1 minutes',
+    }
+  ]
+  ;
 
 
   const getStepStatus = (step, index) => {
-    if (step?.id === completedSteps[completedSteps?.length - 1]) return 'active';
-    if (completedSteps.includes(step?.id)) return 'completed';
+    if (step?.id === status[status?.length - 1]) return 'active';
+    if (status.includes(step?.id)) return 'completed';
     return 'pending';
   };
 
@@ -59,6 +77,10 @@ const TransactionStatusOverlay = ({
     }
   };
 
+  const handleTxTab = () => {
+    window.open(`https://explorer.test.mezo.org/token/${txHash}`, '_blank'); // opens new tab                  // changes local route
+  };
+
   if (!isVisible) return null;
 
   return (
@@ -74,13 +96,13 @@ const TransactionStatusOverlay = ({
               <h3 className="text-lg font-semibold text-foreground font-heading">
                 Transaction Progress
               </h3>
-              <p className="text-sm text-muted-foreground">
+              {/* <p className="text-sm text-muted-foreground">
                 {transactionData?.amount} BTC
-              </p>
+              </p> */}
             </div>
           </div>
           
-          {isCompleted && (
+          {status?.find((stat) => stat === "completed") && (
             <Button variant="ghost" size="icon" onClick={onClose}>
               <Icon name="X" size={20} />
             </Button>
@@ -88,16 +110,16 @@ const TransactionStatusOverlay = ({
         </div>
 
         {/* Transaction Hash */}
-        {transactionData?.id && (
+        {txHash && (
           <div className="px-6 py-3 bg-muted">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Transaction Hash</span>
-              <Button variant="ghost" size="xs" iconName="ExternalLink" iconPosition="right">
+              <Button variant="ghost" size="xs" iconName="ExternalLink" iconPosition="right" onClick={handleTxTab}>
                 View on Explorer
               </Button>
             </div>
             <p className="text-xs font-data text-foreground mt-1 break-all">
-              {transactionData?.id}
+              {txHash}
             </p>
           </div>
         )}
@@ -151,7 +173,7 @@ const TransactionStatusOverlay = ({
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-border bg-muted/50">
-          {isCompleted ? (
+          {status?.find((stat) => stat === "completed") ? (
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Icon name="CheckCircle" size={16} className="text-success" />

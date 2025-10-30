@@ -15,6 +15,8 @@ import { formatUnits, parseUnits } from 'viem';
 import { swapBTCToMUSD } from '../../calls/swapBTCToMUSD';
 import toast from 'react-hot-toast';
 import { quoteAddLiquidity } from '../../calls/quoteAddLiquidity';
+import { provideLiquidity } from '../../calls/provideLiquidity';
+import { useNavigate } from 'react-router-dom';
 
 
 const BridgeAndDeploy = () => {
@@ -32,32 +34,39 @@ const BridgeAndDeploy = () => {
   const [amountBTC, setAmountBTC] = useState('');
   const [amountMUSD, setAmountMUSD] = useState('');
   const [selectedChoice, setSelectedChoice] = useState(null);
-  const [isDepositing, setIsDepositing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [status, setStatus] = useState([]);
+  const [txHash, setTxHash] = useState("");
   const [getingSharesOutput, setGettingSharesOutput] = useState(false);
   const [getingSwapOutput, setGettingSwapOutput] = useState(false);
-  const [completedSteps, setCompletedSteps] = useState([]);
   const [showTransactionStatus, setShowTransactionStatus] = useState(false);
-  const [transactionData, setTransactionData] = useState(null);
   const [sharesOutput, setSharesOutput] = useState([]);
   const [swappedMUSDAmount, setSwappedMUSDAmount] = useState(null);
   
   const { address, isConnected } = useAccount();
   const btcBalance = useBalance({ address });
   const btcPrice = useBTCPrice();
+  const navigate = useNavigate();
   const musdBalance = useBalance({ address, token: MUSD_ADDR })
 
   const handleTransactionClose = () => {
-    setShowTransactionStatus(false);
-    setTransactionData(null);
     setAmount('');
     setAmountMUSD('');
+    setAmountBTC('')
+    navigate("/wallet")
+    setStatus([])
   };
 
   const handleAmountSet = (amount) => {
     setAmount(amount);
-    console.log("amountBTC", amount)
-
     handleQuoteAddLiquidity(amountMUSD, amount);
+  };
+  
+  const handleSelectedChoice = (choice) => {
+    setSelectedChoice(choice);
+    setAmountMUSD('');
+    setAmountBTC('');
+    setSharesOutput([]);
   };
 
   const handleGetOutputForSwapping = async (amountIn) => {
@@ -95,15 +104,8 @@ const BridgeAndDeploy = () => {
   const handleQuoteAddLiquidity = async (amountMusd, amountBTC) => {
     setAmountMUSD(amountMusd);
     let amount_musd;
-    if (selectedChoice?.id === "1") {
-      amount_musd = swappedMUSDAmount
-    }
-    if (selectedChoice?.id === "2") {
-      amount_musd = amountMusd
-    }
-    console.log("choice", selectedChoice)
-    console.log("out",(amountBTC ?? amount) )
-    console.log("out2", amountMusd)
+
+    amount_musd = amountMusd
 
     if (Number(amountBTC ?? amount) <= 0 || Number(amount_musd) <= 0) {
       return;
@@ -124,6 +126,15 @@ const BridgeAndDeploy = () => {
   };
 
   const handleAddLiquidity = async () => {
+    console.log(Number(amount))
+    if (Number(amount) <= 0) {
+      toast.error("Please enter BTC amount");
+      return;
+    }
+    if (!selectedChoice?.id) {
+      toast.error("Please select a choice");
+      return;
+    }
     if ((Number(amount) <= 0 || Number(swappedMUSDAmount) <= 0) && selectedChoice?.id === "1") {
       toast.error("Please enter a valid amount for both BTC and MUSD");
       return;
@@ -132,19 +143,32 @@ const BridgeAndDeploy = () => {
       toast.error("Please enter a valid amount for both BTC and MUSD");
       return;
     }
+    setIsProcessing(true);
     setShowTransactionStatus(true);
     try {
       if (selectedChoice?.id === "1") {
-        const tx = await swapBTCToMUSD(parseUnits(amountBTC.toString(), 18), address);
+        await swapBTCToMUSD(parseUnits(amountBTC.toString(), 18), address);
+        setStatus([...status, "swapped"]);
         const tx2 = await provideLiquidity(parseUnits(amount.toString(), 18), parseUnits(swappedMUSDAmount.toString(), 18), address);
-        setShowTransactionStatus(false);
+        setStatus([...status, "depositedToPool"]);
+        setTimeout(() => {
+          setStatus([...status], "completed");
+          setTxHash(tx2.hash)
+          toast.success("Liquidity Shares Active")
+        }, 1500);
       } else {
-        const tx = await swapBTCToMUSD(parseUnits(amountMUSD.toString(), 18), address);
         const tx2 = await provideLiquidity(parseUnits(amount.toString(), 18), parseUnits(amountMUSD.toString(), 18), address);
-        setShowTransactionStatus(false);
+        setStatus([...status, "depositedToPool"]);
+        setTimeout(() => {
+          setStatus([...status], "completed");
+          setTxHash(tx2.hash)
+          toast.success("Liquidity Shares Active")
+        }, 1500);
       }
     } catch (error) { 
       setShowTransactionStatus(false);
+      setIsProcessing(false);
+      setStatus([]);
       console.error("Error depositing Assets:", error);
     }
   };
@@ -248,7 +272,7 @@ const BridgeAndDeploy = () => {
                         onMUSDAmountChange={handleQuoteAddLiquidity}
                         isSelected={selectedChoice?.id === choice?.id}
                         selectedChoice={selectedChoice}
-                        onSelect={setSelectedChoice}
+                        onSelect={handleSelectedChoice}
                         swappedMUSDAmount={swappedMUSDAmount}
                         musdBalance={musdBalance}
                         btcBalance={btcBalance?.data?.formatted}
@@ -268,7 +292,7 @@ const BridgeAndDeploy = () => {
                   getingSharesOutput={getingSharesOutput}
                   selectedChoice={selectedChoice}
                   onDeposit={() => handleAddLiquidity()}
-                  isDepositing={isDepositing}
+                  isDepositing={isProcessing}
                 />
 
                 {/* Security Notice */}
@@ -290,31 +314,6 @@ const BridgeAndDeploy = () => {
                   </div>
                 </div>
 
-                {/* Protocol Comparison */}
-                <div className="bg-card border border-border rounded-lg p-4 hidden">
-                  <h4 className="text-sm font-medium text-foreground mb-3">
-                    Protocol Comparison
-                  </h4>
-
-                  {protocols &&
-                    <div className="space-y-2">
-                      {protocols?.map((protocol) => (
-                        <div key={protocol?.id} className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">{protocol?.name}</span>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-foreground font-medium">{protocol?.apy}%</span>
-                            <span className={`px-1.5 py-0.5 rounded text-xs ${
-                              protocol?.risk === 'Low' ? 'bg-success/10 text-success' :
-                              protocol?.risk === 'Medium'? 'bg-warning/10 text-warning' : 'bg-error/10 text-error'
-                            }`}>
-                              {protocol?.risk}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  }
-                </div>
               </div>
             </div>
           </div>
@@ -324,8 +323,9 @@ const BridgeAndDeploy = () => {
         <TransactionStatusOverlay
           isVisible={showTransactionStatus}
           onClose={handleTransactionClose}
-          transactionData={transactionData}
-          completedSteps={completedSteps}
+          status={status}
+          tx={txHash}
+          selectedChoice={selectedChoice}
         />
       </div>
     </>

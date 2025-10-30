@@ -18,22 +18,6 @@ const ChoiceSelectionCard = ({
   btcBalance,
   getingSwapOutput
 }) => {
-  const [expandedPools, setExpandedPools] = useState({});
-  const navigate = useNavigate();
-
-
-  const getRiskColor = (risk) => {
-    switch (risk?.toLowerCase()) {
-      case 'low':
-        return 'text-success bg-success/10';
-      case 'medium':
-        return 'text-warning bg-warning/10';
-      case 'high':
-        return 'text-error bg-error/10';
-      default:
-        return 'text-white bg-muted';
-    }
-  };
 
   const getProtocolIcon = (type) => {
     switch (type) {

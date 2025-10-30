@@ -34,9 +34,9 @@ export async function provideLiquidity(amountBTC, amountMUSD, account) {
         account,
         Math.floor(Date.now() / 1000) + 60 * 5, // 5-min deadline
     )
-    console.log('Deposit TX sent:', tx.hash)
+    console.log('Deposit TX sent:', tx3.hash)
     await tx3.wait()
-    console.log('✅ Deposit confirmed:', tx.hash)
+    console.log('✅ Deposit confirmed:', tx3.hash)
     return tx3
   } catch (err) {
     console.error('Swap failed:', err)
