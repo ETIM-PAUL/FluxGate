@@ -9,6 +9,7 @@ import { formatUnits } from 'viem'
 import { useAccount, useBalance } from 'wagmi'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { MUSD_ADDR } from '../../utils/cn'
+import { getLiquidityBal } from '../../calls/getLiquidityBal'
 
 const WalletSection = () => {
   const {
@@ -26,6 +27,7 @@ const WalletSection = () => {
   const [selectedProtocol, setSelectedProtocol] = useState(null);
   const [redeemAmount, setRedeemAmount] = useState('');
   const [selectedPercentage, setSelectedPercentage] = useState(100);
+  const [poolBalance, setPoolBalance] = useState(null);
   
   const [mezoVaultData, setMezoVaultData] = useState({
     deposits: { primeAssetsVal:0, assetsVal: 0, amount: '0' },
@@ -34,6 +36,17 @@ const WalletSection = () => {
     balance: '0',
     primeVesuBalance: '0'
   });
+
+  const fetchBal = async () => {
+    await getLiquidityBal(address).then((res) => setPoolBalance(res))
+  }
+
+  useEffect(() => {
+    if (isConnected) {
+      fetchBal();
+    }
+  }, [])
+  
 
 
   const shortenAddress = (address) => {
@@ -209,7 +222,7 @@ const WalletSection = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-semibold text-foreground">{mezoVaultData?.balance}</div>
+                    <div className="text-lg font-semibold text-foreground">{poolBalance}</div>
                     <div className="text-xs text-muted-foreground">vAMM-MUSD/BTC</div>
                   </div>
                 </div>
@@ -226,7 +239,7 @@ const WalletSection = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-semibold text-foreground">{mezoVaultData?.balance}</div>
+                    <div className="text-lg font-semibold text-foreground">{3}</div>
                     <div className="text-xs text-muted-foreground">vAMM-MUSD/BTC</div>
                   </div>
                 </div>

@@ -68,7 +68,16 @@ const ChoiceSelectionCard = ({
       {/* Sub-Protocol Pools Section */}
       {(isSelected) && (
         <div className="mb-4">
-          <h5 className="text-sm font-medium text-foreground mb-3">{selectedChoice?.id === "1" ? "Enter BTC Amount to Swap to MUSD" : "Enter MUSD Amount to Deposit"}</h5>
+
+          <div className='flex w-full justify-between'>
+            <h5 className="text-sm font-medium text-foreground mb-3">{selectedChoice?.id === "1" ? "Enter BTC Amount to Swap to MUSD" : "Enter MUSD Amount to Deposit"}</h5>
+            {selectedChoice?.id === "2" &&
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <Icon name="Wallet" size={16} />
+              <span>Balance: {Number(musdBalance?.data?.formatted).toFixed(3)} MUSD</span>
+            </div>
+            }
+          </div>
 
           {selectedChoice?.id === "1" ? 
             <div className="relative">

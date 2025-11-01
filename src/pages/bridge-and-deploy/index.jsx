@@ -21,14 +21,6 @@ import { useNavigate } from 'react-router-dom';
 
 const BridgeAndDeploy = () => {
   
-  const {
-    isWalletConnected, 
-    handleGetWBTCBal,
-    walletAddress,
-    starknetAddress,
-    protocols
-  } = useGlobal();
-  
   
   const [amount, setAmount] = useState('');
   const [amountBTC, setAmountBTC] = useState('');
@@ -194,7 +186,7 @@ const BridgeAndDeploy = () => {
                     Swap & Invest - Flux Gate
                   </h1>
                   <p className="text-muted-foreground">
-                  Swap your Bitcoin to MUSD and invest in yield-generating vaults with one click
+                  Swap your Bitcoin to MUSD and invest in Volatile AMM - MUSD/BTC Pool with one click
                   </p>
                 </div>
               </div>
@@ -204,15 +196,15 @@ const BridgeAndDeploy = () => {
                 <div className="bg-card border border-border rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <Icon name="TrendingUp" size={16} className="text-success" />
-                    <span className="text-sm text-muted-foreground">Best APY</span>
+                    <span className="text-sm text-muted-foreground">Assets</span>
                   </div>
-                  <span className="text-2xl font-bold text-foreground font-data">3.24%</span>
+                  <span className="text-2xl font-bold text-foreground font-data">Two(2) Assets</span>
                 </div>
                 
                 <div className="bg-card border border-border rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <Icon name="DollarSign" size={16} className="text-accent" />
-                    <span className="text-sm text-muted-foreground">Total TVL</span>
+                    <span className="text-sm text-muted-foreground">Total Reserves</span>
                   </div>
                   <span className="text-2xl font-bold text-foreground">$12.7M</span>
                 </div>
@@ -220,7 +212,7 @@ const BridgeAndDeploy = () => {
                 <div className="bg-card border border-border rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <Icon name="Users" size={16} className="text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Active Vaults</span>
+                    <span className="text-sm text-muted-foreground">Active Pools</span>
                   </div>
                   <span className="text-2xl font-bold text-foreground">1</span>
                 </div>

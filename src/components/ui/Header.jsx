@@ -37,7 +37,7 @@ const Header = () => {
     },
     {
       label: 'Lending Interest',
-      path: '/collateral-and-interest',
+      path: '/credit-vault',
       icon: 'Currency',
       tooltip: 'Supply MUSD/BTC as collateral to earn lending interest'
     },
