@@ -16,10 +16,6 @@ const TransactionPreviewPanel = ({
   const [fees, setFees] = useState({
     protocolFee: '0.00005'
   });
-
-  const {
-    isWalletConnected
-  } = useGlobal();
   
   const [slippage, setSlippage] = useState(0.5);
   const [depositOutput, setDepositOutput] = useState('0.00000000');
@@ -40,37 +36,30 @@ const TransactionPreviewPanel = ({
   const transactionSteps = selectedChoice?.id === "1" ? [
     {
       step: 1,
-      title: 'Swap BTC to MUSD',
-      description: 'Swap Bitcoin to Mezo USD (MUSD)',
-      icon: 'ArrowRightLeft',
-      status: 'pending'
-    },
-    {
-      step: 2,
-      title: 'Approve and Deposit Assets',
-      description: 'Approve MUSD/BTC Assets to be deposited AND Deposit into MUSD/BTC Pool',
+      title: 'Approve and Deposit Asset',
+      description: 'Approve BTC Asset AND Deposit into Credit Vault',
       icon: 'Rocket',
       status: 'pending'
     },
     {
-      step: 3,
-      title: 'Pool Shares',
-      description: `Receive Liquidity Pool Shares`,
+      step: 2,
+      title: 'Start Earning Interest',
+      description: `Receive vault shares and begin earning ${3}% APR`,
       icon: 'Target',
       status: 'pending'
     }
   ] : [
     {
       step: 1,
-      title: 'Approve and Deposit Assets',
-      description: 'Approve MUSD/BTC Assets AND Deposit into MUSD/BTC Pool',
+      title: 'Approve and Deposit Asset',
+      description: 'Approve MUSD Asset AND Deposit into Credit Vault',
       icon: 'Rocket',
       status: 'pending'
     },
     {
       step: 2,
-      title: 'Pool Shares',
-      description: `Receive Liquidity Pool Shares`,
+      title: 'Start Earning Interest',
+      description: `Receive vault shares and begin earning ${6}% APR`,
       icon: 'Target',
       status: 'pending'
     }
@@ -87,7 +76,7 @@ const TransactionPreviewPanel = ({
         </h3>
         <div className="flex items-center space-x-2">
           <Icon name="Clock" size={16} className="text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">~15-45 min</span>
+          <span className="text-sm text-muted-foreground">~2-4 min</span>
         </div>
       </div>
 
@@ -195,20 +184,8 @@ const TransactionPreviewPanel = ({
         iconPosition="left"
         className="mt-6 bg-gray-600 hover:bg-gray-700 cursor-pointer disabled:cursor-not-allowed"
       >
-        {isDepositing ? 'Processing...' : selectedChoice?.id === 1 ? 'Swap & Deposit' : 'Deposit'}
+        {isDepositing ? 'Processing...' : "Process"}
       </Button>
-      {/* {!canDeploy && amount && parseFloat(amount) > 0 && (
-        <div className="flex items-center space-x-2 p-3 bg-warning/10 border border-warning/20 rounded-md">
-          <Icon name="AlertTriangle" size={16} className="text-warning" />
-          <span className="text-sm text-warning">
-            {!selectedProtocol 
-              ? 'Please select a yield protocol' 
-              : parseFloat(amount) <= totalFees 
-                ? 'Amount must be greater than total fees' :'Invalid transaction parameters'
-            }
-          </span>
-        </div>
-      )} */}
     </div>
   );
 };
