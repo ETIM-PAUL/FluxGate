@@ -8,7 +8,7 @@ import Icon from '../../components/AppIcon';
 import { useGlobal } from '../../context/global';
 import ChoiceSelectionCard from './components/ChoiceSelectionCard';
 import { useAccount, useBalance } from 'wagmi';
-import { BTC_ADDR, FACTORY_ADDR, MUSD_ADDR, ROUTER_ADDR } from '../../utils/cn';
+import { AssetType, BTC_ADDR, FACTORY_ADDR, MUSD_ADDR, ROUTER_ADDR } from '../../utils/cn';
 import { useBTCPrice } from '../wallet/getBTCPrice';
 import { getAmountsOut } from '../../calls/getAmountsOutput';
 import { formatUnits, parseUnits } from 'viem';
@@ -17,6 +17,7 @@ import toast from 'react-hot-toast';
 import { quoteAddLiquidity } from '../../calls/quoteAddLiquidity';
 import { provideLiquidity } from '../../calls/provideLiquidity';
 import { useNavigate } from 'react-router-dom';
+import { processLendingInterest } from '../../calls/processLendingInterest';
 
 
 const CreditVault = () => {
@@ -30,7 +31,6 @@ const CreditVault = () => {
   const [status, setStatus] = useState([]);
   const [txHash, setTxHash] = useState("");
   const [getingSharesOutput, setGettingSharesOutput] = useState(false);
-  const [getingSwapOutput, setGettingSwapOutput] = useState(false);
   const [showTransactionStatus, setShowTransactionStatus] = useState(false);
   const [sharesOutput, setSharesOutput] = useState([]);
   const [swappedMUSDAmount, setSwappedMUSDAmount] = useState(null);
@@ -49,10 +49,6 @@ const CreditVault = () => {
     setStatus([])
   };
 
-  const handleAmountSet = (amount) => {
-    setAmount(amount);
-    handleQuoteAddLiquidity(amountMUSD, amount);
-  };
   
   const handleSelectedChoice = (choice) => {
     setSelectedChoice(choice);
@@ -69,71 +65,41 @@ const CreditVault = () => {
     }
   };
 
-  const handleQuoteAddLiquidity = async (amountMusd, amountBTC) => {
-    setAmountMUSD(amountMusd);
-    let amount_musd;
 
-    amount_musd = amountMusd
-
-    if (Number(amountBTC ?? amount) <= 0 || Number(amount_musd) <= 0) {
-      return;
-    }
-    setGettingSharesOutput(true);
-    try {
-      const out = await quoteAddLiquidity({
-        amountMUSD: parseUnits(amount_musd.toString(), 18),
-        amountBTC: parseUnits((amountBTC ?? amount).toString(), 18),
-      });
-      
-      setSharesOutput(out);
-      setGettingSharesOutput(false);
-    } catch (error) {
-      setGettingSharesOutput(false);
-      console.error("Error getting amount out for BTC to MUSD:", error);
-    }
-  };
-
-  const handleAddLiquidity = async () => {
-    if (Number(amount) <= 0) {
-      toast.error("Please enter BTC amount");
+  const handleLendingInterest = async () => {
+    console.log(amountBTC);
+    console.log(amountMUSD);
+    
+    if (Number(amountBTC) <= 0 && Number(amountMUSD) <= 0) {
+      toast.error("Please enter a valid amount for both BTC and MUSD");
       return;
     }
     if (!selectedChoice?.id) {
       toast.error("Please select a choice");
       return;
     }
-    if ((Number(amount) <= 0 || Number(swappedMUSDAmount) <= 0) && selectedChoice?.id === "1") {
-      toast.error("Please enter a valid amount for both BTC and MUSD");
-      return;
-    }
-    if ((Number(amount) <= 0 || Number(amountMUSD) <= 0) && selectedChoice?.id === "2") {
-      toast.error("Please enter a valid amount for both BTC and MUSD");
-      return;
-    }
     setIsProcessing(true);
-    setShowTransactionStatus(true);
+    // setShowTransactionStatus(true);
     try {
       if (selectedChoice?.id === "1") {
-        await swapBTCToMUSD(parseUnits(amountBTC.toString(), 18), address);
-        setStatus([...status, "swapped"]);
-        const tx2 = await provideLiquidity(parseUnits(amount.toString(), 18), parseUnits(swappedMUSDAmount.toString(), 18), address);
+        const tx = await processLendingInterest(parseUnits(amountBTC.toString(), 18), AssetType?.BTC);
         setStatus([...status, "depositedToPool"]);
         setTimeout(() => {
           setStatus([...status], "completed");
-          setTxHash(tx2.hash)
-          toast.success("Liquidity Shares Active")
+          setTxHash(tx.hash)
+          toast.success("Lending Interest Position Active")
         }, 1500);
       } else {
-        const tx2 = await provideLiquidity(parseUnits(amount.toString(), 18), parseUnits(amountMUSD.toString(), 18), address);
+        const tx = await processLendingInterest(parseUnits(amountMUSD.toString(), 18), AssetType?.MUSD);
         setStatus([...status, "depositedToPool"]);
         setTimeout(() => {
           setStatus([...status], "completed");
-          setTxHash(tx2.hash)
-          toast.success("Liquidity Shares Active")
+          setTxHash(tx.hash)
+          toast.success("Lending Interest Position Active")
         }, 1500);
       }
     } catch (error) { 
-      setShowTransactionStatus(false);
+      // setShowTransactionStatus(false);
       setIsProcessing(false);
       setStatus([]);
       console.error("Error depositing Assets:", error);
@@ -249,7 +215,7 @@ const CreditVault = () => {
                   sharesOutput={sharesOutput}
                   getingSharesOutput={getingSharesOutput}
                   selectedChoice={selectedChoice}
-                  onDeposit={() => handleAddLiquidity()}
+                  onDeposit={() => handleLendingInterest()}
                   isDepositing={isProcessing}
                 />
 

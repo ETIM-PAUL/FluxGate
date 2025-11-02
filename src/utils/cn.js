@@ -22,6 +22,11 @@ export const formatUnits = (valueBigInt, decimals) => {
   return fracStr.length ? `${whole.toString()}.${fracStr}` : whole.toString();
 };
 
+export const AssetType = {
+  MUSD: 0,
+  BTC: 1
+};
+
 export const MUSD_ADDR = "0x118917a40FAF1CD7a13dB0Ef56C86De7973Ac503"
 export const ROUTER_ADDR = "0x9a1ff7FE3a0F69959A3fBa1F1e5ee18e1A9CD7E9";
 export const FACTORY_ADDR = "0x4947243CC818b627A5D06d14C4eCe7398A23Ce1A";
