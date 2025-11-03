@@ -12,13 +12,13 @@ Lend for Passive Income: Deposit BTC or MUSD into the Credit Vault to earn lendi
 
 Flexible Asset Management: Mix and match collateral types (BTC/MUSD), borrow against your assets, and manage positions—all from one interface
 
-No more juggling multiple wallets, bridges, and protocols. FluxGate transforms idle Bitcoin and/or Mezo USD into productive capital with the simplicity of a single flow.
+No more juggling multiple wallets, bridges, and protocols. FluxGate transforms idle Mezo backed Bitcoin and/or Mezo USD into productive capital with the simplicity of a single flow.
 
 ## 🚀 Features
 
 ### 1. **Swap and Liquidity** (`/swap-and-deploy`)
 - Swap BTC to MUSD tokens
-- Provide liquidity to BTC/MUSD liquidity pools
+- Provide liquidity to BTC/MUSD liquidity pools using BTC and swapped BTC-MUSD or MUSD
 - View real-time swap rates and liquidity pool quotes
 - Transaction status tracking with visual overlays
 
@@ -31,6 +31,7 @@ No more juggling multiple wallets, bridges, and protocols. FluxGate transforms i
 ### 3. **Wallet** (`/wallet`)
 - View wallet address and portfolio balances
 - Track BTC and MUSD holdings
+- Swap MUSD to BTC
 
 ## 🛠️ Tech Stack
 
@@ -126,7 +127,7 @@ The application uses **RainbowKit** for wallet connections. Supported wallets in
 - MetaMask
 - WalletConnect
 - Coinbase Wallet
-- And other RainbowKit-compatible wallets
+- And other EVM-compatible wallets
 
 
 ## 🔍 Key Features Implementation
