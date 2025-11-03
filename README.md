@@ -2,6 +2,18 @@
 
 Flux Gate is a decentralized finance (DeFi) platform built on the Mezo Testnet, enabling Bitcoin (BTC) and MUSD token swaps, liquidity provision, and credit vault operations for earning lending interest.
 
+Most Bitcoin remains idle, earning no yield despite the explosion of DeFi opportunities. Moving BTC into DeFi today is complicated—it requires bridging, wrapping, connecting new wallets, and manually interacting with yield protocols. I wanted to make this process as simple as sending Bitcoin.
+That's why I built FluxGate: a one-click bridge from Bitcoin to Mezo yield opportunities.
+FluxGate enables you to:
+
+Swap & Earn: Seamlessly swap BTC to Mezo USD and deposit into yield vaults with a single click.
+
+Lend for Passive Income: Deposit BTC or MUSD into the Credit Vault to earn lending interest by backing institutional credit lines.
+
+Flexible Asset Management: Mix and match collateral types (BTC/MUSD), borrow against your assets, and manage positions—all from one interface
+
+No more juggling multiple wallets, bridges, and protocols. FluxGate transforms idle Bitcoin and/or Mezo USD into productive capital with the simplicity of a single flow.
+
 ## 🚀 Features
 
 ### 1. **Swap and Liquidity** (`/swap-and-deploy`)
