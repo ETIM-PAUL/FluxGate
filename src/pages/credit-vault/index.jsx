@@ -18,6 +18,9 @@ import { quoteAddLiquidity } from '../../calls/quoteAddLiquidity';
 import { provideLiquidity } from '../../calls/provideLiquidity';
 import { useNavigate } from 'react-router-dom';
 import { processLendingInterest } from '../../calls/processLendingInterest';
+import { getMusdPrice } from '../../calls/getMusdPrice';
+import { useEffect } from 'react';
+import { getCreditVaultInfo } from '../../calls/getCreditVaultInfo';
 
 
 const CreditVault = () => {
@@ -33,7 +36,10 @@ const CreditVault = () => {
   const [getingSharesOutput, setGettingSharesOutput] = useState(false);
   const [showTransactionStatus, setShowTransactionStatus] = useState(false);
   const [sharesOutput, setSharesOutput] = useState([]);
-  const [swappedMUSDAmount, setSwappedMUSDAmount] = useState(null);
+  const [musdPrice, setMusdPrice] = useState(null);
+  const [usdBtcValue, setUsdBtcValue] = useState('0.00');
+  const [usdMusdValue, setUsdMusdValue] = useState('0.00');
+  const [vaultInfo, setVaultInfo] = useState(null);
   
   const { address, isConnected } = useAccount();
   const btcBalance = useBalance({ address });
@@ -49,7 +55,6 @@ const CreditVault = () => {
     setStatus([])
   };
 
-  
   const handleSelectedChoice = (choice) => {
     setSelectedChoice(choice);
     setAmountMUSD('');
@@ -60,16 +65,29 @@ const CreditVault = () => {
   const handleGetOutput = async (amountIn) => {
     if (selectedChoice?.id === "1") {
       setAmountBTC(amountIn);
+      const usdAmount = parseFloat(amountIn) * (selectedChoice?.id === "1" ? btcPrice : musdPrice)
+      setUsdBtcValue(usdAmount);
     } else {
       setAmountMUSD(amountIn);
+      const usdAmount = parseFloat(amountIn) * (selectedChoice?.id === "1" ? btcPrice : musdPrice)
+      setUsdMusdValue(usdAmount);
     }
+  };
+  const handleGetMUSDPrice = async () => {
+    const out = await getMusdPrice({
+      rpcUrl: "https://rpc.test.mezo.org", // e.g., Avalanche, Mezo, etc.
+    });
+    setMusdPrice(formatUnits(out, 18))
+  };
+  const handleGetVaultInfo = async () => {
+    const out = await getCreditVaultInfo({
+      rpcUrl: "https://rpc.test.mezo.org", // e.g., Avalanche, Mezo, etc.
+    });
+    setVaultInfo(out)
   };
 
 
   const handleLendingInterest = async () => {
-    console.log(amountBTC);
-    console.log(amountMUSD);
-    
     if (Number(amountBTC) <= 0 && Number(amountMUSD) <= 0) {
       toast.error("Please enter a valid amount for both BTC and MUSD");
       return;
@@ -89,6 +107,8 @@ const CreditVault = () => {
           setTxHash(tx.hash)
           toast.success("Lending Interest Position Active")
         }, 1500);
+        handleGetVaultInfo();
+        setIsProcessing(false);
       } else {
         const tx = await processLendingInterest(parseUnits(amountMUSD.toString(), 18), AssetType?.MUSD);
         setStatus([...status, "depositedToPool"]);
@@ -97,6 +117,8 @@ const CreditVault = () => {
           setTxHash(tx.hash)
           toast.success("Lending Interest Position Active")
         }, 1500);
+        handleGetVaultInfo();
+        setIsProcessing(false);
       }
     } catch (error) { 
       // setShowTransactionStatus(false);
@@ -105,6 +127,12 @@ const CreditVault = () => {
       console.error("Error depositing Assets:", error);
     }
   };
+
+  useEffect(() => {
+    handleGetMUSDPrice();
+    handleGetVaultInfo();
+  }, [])
+  
 
   return (
     <>
@@ -138,17 +166,17 @@ const CreditVault = () => {
                 <div className="bg-card border border-border rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <Icon name="TrendingUp" size={16} className="text-success" />
-                    <span className="text-sm text-muted-foreground">Best APY</span>
+                    <span className="text-sm text-muted-foreground">BTC Liquidity</span>
                   </div>
-                  <span className="text-2xl font-bold text-foreground font-data">3.24%</span>
+                  <span className="text-2xl font-bold text-foreground font-data">{formatUnits(vaultInfo?.btcInfo[2] ?? 0, 18)} BTC</span>
                 </div>
                 
                 <div className="bg-card border border-border rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <Icon name="DollarSign" size={16} className="text-accent" />
-                    <span className="text-sm text-muted-foreground">Total TVL</span>
+                    <span className="text-sm text-muted-foreground">MUSD Liquidity</span>
                   </div>
-                  <span className="text-2xl font-bold text-foreground">$12.7M</span>
+                  <span className="text-2xl font-bold text-foreground font-data">{formatUnits(vaultInfo?.musdInfo[2] ?? 0, 18)} MUSD</span>
                 </div>
                 
                 <div className="bg-card border border-border rounded-lg p-4">
@@ -192,6 +220,9 @@ const CreditVault = () => {
                         key={index}
                         choice={choice}
                         btcPrice={btcPrice}
+                        musdPrice={musdPrice}
+                        usdBtcValue={usdBtcValue}
+                        usdMusdValue={usdMusdValue}
                         isConnected={isConnected}
                         amount={amountBTC}
                         amountMUSD={amountMUSD}

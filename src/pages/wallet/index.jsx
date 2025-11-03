@@ -5,49 +5,44 @@ import { useGlobal } from '../../context/global'
 import { Helmet } from 'react-helmet'
 import Header from '../../components/ui/Header'
 import toast from 'react-hot-toast'
-import { formatUnits } from 'viem'
+import { formatUnits, parseUnits } from 'viem'
 import { useAccount, useBalance } from 'wagmi'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { MUSD_ADDR } from '../../utils/cn'
 import { getLiquidityBal } from '../../calls/getLiquidityBal'
+import { getUserCreditInterest } from '../../calls/getUserCreditInterest'
+import { swapBTCToMUSD } from '../../calls/swapBTCToMUSD'
+import { swapMUSDToBTC } from '../../calls/swapMUSDToBTC'
 
 const WalletSection = () => {
-  const {
-    isWalletConnected,
-    isInstalled,
-    isConnecting,
-    walletAddress,
-    wBTCBalance,
-  } = useGlobal();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [bridging, setBridging] = useState(false);
-  const [isRedeeming, setIsRedeeming] = useState(false);
+  const [swapping, setSwapping] = useState(false);
   const [showRedeemModal, setShowRedeemModal] = useState(false);
   const [selectedProtocol, setSelectedProtocol] = useState(null);
   const [redeemAmount, setRedeemAmount] = useState('');
   const [selectedPercentage, setSelectedPercentage] = useState(100);
   const [poolBalance, setPoolBalance] = useState(null);
-  
-  const [mezoVaultData, setMezoVaultData] = useState({
-    deposits: { primeAssetsVal:0, assetsVal: 0, amount: '0' },
-    withdrawals: { count: 0, amount: '0' },
-    redemptions: { count: 0, amount: '0' },
-    balance: '0',
-    primeVesuBalance: '0'
-  });
+  const [interestBal, setInterestBal] = useState(null);
+
 
   const fetchBal = async () => {
+    setIsLoading(true);
     await getLiquidityBal(address).then((res) => setPoolBalance(res))
+  }
+  const fetchCreditBal = async () => {
+    await getUserCreditInterest({
+      account: address,
+    }).then((res) => setInterestBal(res))
+    setIsLoading(false);
   }
 
   useEffect(() => {
     if (isConnected) {
       fetchBal();
+      fetchCreditBal();
     }
   }, [])
-  
-
 
   const shortenAddress = (address) => {
     if (!address) return '';
@@ -81,7 +76,7 @@ const WalletSection = () => {
   // Handle percentage selection
   const handlePercentageSelect = (percentage) => {
     setSelectedPercentage(percentage);
-    const currentBalance = parseFloat(wBTCBalance || '0');
+    const currentBalance = parseFloat(musdBalance?.data?.formatted || '0');
     const amount = (currentBalance * percentage / 100).toFixed(8);
     setRedeemAmount(amount);
   };
@@ -93,6 +88,20 @@ const WalletSection = () => {
     setSelectedProtocol(null);
     setRedeemAmount('');
     setSelectedPercentage(100);
+  };
+
+
+  const handleSwapMUSD2BTC = async () => {
+    try {
+      setSwapping(true);
+      await swapMUSDToBTC(parseUnits(redeemAmount.toString(), 18), address);
+      setSwapping(false);
+      setShowRedeemModal(false);
+      toast.success("Tokens swapped successfully");
+    } catch (error) {
+      setSwapping(false);
+      console.log(error)
+    }
   };
 
   const { address, isConnected } = useAccount();
@@ -131,6 +140,7 @@ const WalletSection = () => {
       </div>
     )
   }
+  
 
   return (
     <>
@@ -184,10 +194,10 @@ const WalletSection = () => {
                       onClick={() => setShowRedeemModal(true)}
                       className="text-xs w-fit p-2 cursor-pointer h-fit"
                     >
-                      {bridging ? "Swapping" : "Swap to BTC"}
+                      {swapping ? "Swapping" : "Swap to BTC"}
                     </Button>
                 </div>
-                <div className="mt-1 text-[10px] text-muted-foreground hidden">Shown after bridging</div>
+                <div className="mt-1 text-[10px] text-muted-foreground hidden">Shown after swapping</div>
               </div>
             </div>
           </div>
@@ -239,8 +249,12 @@ const WalletSection = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-semibold text-foreground">{3}</div>
-                    <div className="text-xs text-muted-foreground">vAMM-MUSD/BTC</div>
+                    <div className="text-lg font-semibold text-foreground">{formatUnits(interestBal?.[5] ?? 0, 18)}</div>
+                    <div className="text-xs text-muted-foreground">BTC (BTC Shares)</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-semibold text-foreground">{formatUnits(interestBal?.[2] ?? 0, 18)}</div>
+                    <div className="text-xs text-muted-foreground">MUSD (MUSD Shares)</div>
                   </div>
                 </div>
               </div>
@@ -268,7 +282,7 @@ const WalletSection = () => {
             <div className="space-y-4">
               <div className="bg-surface border border-border rounded-lg p-4">
                 <div className="text-sm text-muted-foreground mb-2">Available Balance</div>
-                <div className="text-lg font-semibold text-foreground">{wBTCBalance} WBTC</div>
+                <div className="text-lg font-semibold text-foreground">{musdBalance?.data?.formatted} MUSD</div>
               </div>
 
               <div>
@@ -305,7 +319,7 @@ const WalletSection = () => {
                     min="0"
                     max={selectedProtocol?.balance}
                   />
-                  <div className="absolute right-3 top-2 text-sm text-muted-foreground">WBTC</div>
+                  <div className="absolute right-3 top-2 text-sm text-muted-foreground">MUSD</div>
                 </div>
               </div>
 
@@ -324,18 +338,18 @@ const WalletSection = () => {
                   variant="outline"
                   onClick={handleCloseModal}
                   className="flex-1 cursor-pointer"
-                  disabled={bridging}
+                  disabled={swapping}
                 >
                   Cancel
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={handleBridgingWBTC2BTC}
+                  onClick={handleSwapMUSD2BTC}
                   className="flex-1 cursor-pointer"
-                  loading={bridging}
-                  disabled={!wBTCBalance || parseFloat(wBTCBalance) <= 0}
+                  loading={swapping}
+                  disabled={!musdBalance?.data?.formatted || parseFloat(musdBalance?.data?.formatted) <= 0}
                 >
-                  {bridging ? 'Swapping...' : 'Confirm Swap'}
+                  {swapping ? 'Swapping...' : 'Confirm Swap'}
                 </Button>
               </div>
             </div>

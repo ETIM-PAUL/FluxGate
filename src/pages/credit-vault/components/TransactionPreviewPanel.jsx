@@ -16,21 +16,6 @@ const TransactionPreviewPanel = ({
   const [fees, setFees] = useState({
     protocolFee: '0.00005'
   });
-  
-  const [slippage, setSlippage] = useState(0.5);
-  const [depositOutput, setDepositOutput] = useState('0.00000000');
-
-  useEffect(() => {
-    if (amount && selectedChoice?.id) {
-      get_PreviewDeposit(amount, 2).then(result => {
-
-        setDepositOutput(result.toString());
-      }).catch(error => {
-        console.error('Error fetching vault shares preview:', error);
-        setDepositOutput('0.00000000');
-      });
-    }
-  }, [amount, selectedChoice?.id]);
 
 
   const transactionSteps = selectedChoice?.id === "1" ? [
@@ -44,7 +29,7 @@ const TransactionPreviewPanel = ({
     {
       step: 2,
       title: 'Start Earning Interest',
-      description: `Receive vault shares and begin earning ${3}% APR`,
+      description: `Receive vault shares and begin earning interest`,
       icon: 'Target',
       status: 'pending'
     }
@@ -59,7 +44,7 @@ const TransactionPreviewPanel = ({
     {
       step: 2,
       title: 'Start Earning Interest',
-      description: `Receive vault shares and begin earning ${6}% APR`,
+      description: `Receive vault shares and begin earning interest`,
       icon: 'Target',
       status: 'pending'
     }

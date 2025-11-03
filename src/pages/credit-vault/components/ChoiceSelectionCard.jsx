@@ -4,10 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import Input from '../../../components/ui/Input';
 import { useGlobal } from '../../../context/global';
 import Button from '../../../components/ui/Button';
+import { useEffect } from 'react';
 
 const ChoiceSelectionCard = ({ 
   choice, 
   btcPrice,
+  musdPrice,
+  usdBtcValue,
+  usdMusdValue,
   isConnected,
   amount,
   amountMUSD,
@@ -30,8 +34,6 @@ const ChoiceSelectionCard = ({
     }
   };
 
-  const [usdValue, setUsdValue] = useState('0.00');
-
   const handlePercentageClick = (percentage, e) => {
     e?.stopPropagation();
     if (isConnected) {
@@ -39,6 +41,7 @@ const ChoiceSelectionCard = ({
       onAmountChange(percentAmount);
     }
   };
+
 
   return (
     <div
@@ -108,7 +111,7 @@ const ChoiceSelectionCard = ({
 
               <div className="flex mt-3 items-center justify-between text-sm">
                 <span className="text-muted-foreground">
-                  ≈ ${usdValue} USD
+                  ≈ ${usdBtcValue} USD
                 </span>
                 <div className="flex items-center space-x-1 text-muted-foreground">
                   <Icon name="TrendingUp" size={14} />
@@ -172,15 +175,15 @@ const ChoiceSelectionCard = ({
               </div>
               </div>
 
-              {/* <div className="flex mt-3 items-center justify-between text-sm">
+              <div className="flex mt-3 items-center justify-between text-sm">
                 <span className="text-muted-foreground">
-                  ≈ ${usdValue} USD
+                  ≈ ${usdMusdValue} USD
                 </span>
                 <div className="flex items-center space-x-1 text-muted-foreground">
                   <Icon name="TrendingUp" size={14} />
-                  <span>${btcPrice?.toLocaleString()}</span>
+                  <span>${musdPrice}</span>
                 </div>
-              </div> */}
+              </div>
 
               <div className="flex mt-3 items-center space-x-2">
                 <Button

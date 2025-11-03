@@ -197,18 +197,6 @@ const TransactionPreviewPanel = ({
       >
         {isDepositing ? 'Processing...' : selectedChoice?.id === 1 ? 'Swap & Deposit' : 'Deposit'}
       </Button>
-      {/* {!canDeploy && amount && parseFloat(amount) > 0 && (
-        <div className="flex items-center space-x-2 p-3 bg-warning/10 border border-warning/20 rounded-md">
-          <Icon name="AlertTriangle" size={16} className="text-warning" />
-          <span className="text-sm text-warning">
-            {!selectedProtocol 
-              ? 'Please select a yield protocol' 
-              : parseFloat(amount) <= totalFees 
-                ? 'Amount must be greater than total fees' :'Invalid transaction parameters'
-            }
-          </span>
-        </div>
-      )} */}
     </div>
   );
 };

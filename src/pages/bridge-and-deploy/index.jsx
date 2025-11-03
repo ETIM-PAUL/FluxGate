@@ -198,7 +198,7 @@ const BridgeAndDeploy = () => {
                     <Icon name="TrendingUp" size={16} className="text-success" />
                     <span className="text-sm text-muted-foreground">Assets</span>
                   </div>
-                  <span className="text-2xl font-bold text-foreground font-data">Two(2) Assets</span>
+                  <span className="text-2xl font-bold text-foreground font-data">2</span>
                 </div>
                 
                 <div className="bg-card border border-border rounded-lg p-4">
